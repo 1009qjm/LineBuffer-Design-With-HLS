@@ -7,23 +7,31 @@ int main(){
 	for(int i=0;i<N+2*P;i++)
 		for(int j=0;j<N+2*P;j++){
 			if(i>=P&&j>=P&&i<N+P&&j<N+P)
-				In[i][j]=(i-P)*N+(j-P);
+				In[i][j].data=(i-P)*N+(j-P);
 			else
-				In[i][j]=0;
+				In[i][j].data=0;
 		}
 	for(int i=0;i<N;i++)
 		for(int j=0;j<N;j++){
-			data_t sum=0;
+			data_t sum;
+			sum.data=0;
 			for(int kx=0;kx<K;kx++)
 				for(int ky=0;ky<K;ky++)
-					sum+=In[i+kx][j+ky];
+					sum.data+=In[i+kx][j+ky].data;
 			Out[i][j]=sum;
 		}
 	hls::stream<data_t> featureIn;
 	hls::stream<data_t> featureOut;
-	for(int i=0;i<(N+2*P);i++)
-		for(int j=0;j<(N+2*P);j++){
-			data_t tmp=i*(N+2*P)+j;
+	data_t tmp;
+	for(int i=0;i<N;i++)
+		for(int j=0;j<N;j++){
+			tmp.data=i*N+j;
+			tmp.dest=0;
+			tmp.id=0;
+			tmp.keep=3;
+			tmp.strb=3;
+			tmp.user=0;
+			tmp.last=((i==(N-1))&&(j==(N-1)))?1:0;
 			featureIn<<tmp;
 		}
 	Conv2d(featureIn,featureOut,N,P);
@@ -32,14 +40,14 @@ int main(){
 		for(int j=0;j<N;j++){
 			data_t tmp;
 			featureOut>>tmp;
-			cout<<tmp<<",";
+			cout<<tmp.data<<",";
 		}
 		cout<<endl;
 	}
 	cout<<"GOLDEN OUTPUT\n";
 	for(int i=0;i<N;i++){
 		for(int j=0;j<N;j++){
-			cout<<Out[i][j]<<",";
+			cout<<Out[i][j].data<<",";
 		}
 		cout<<endl;
 	}
